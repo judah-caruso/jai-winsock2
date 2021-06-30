@@ -2,7 +2,7 @@
 
 // === Private utilities, types, macros, etc. ===
 #scope_file
-c :: #import "C";
+#load "c.jai";
 
 u_char  :: c.unsigned_char;
 u_short :: c.unsigned_short;
