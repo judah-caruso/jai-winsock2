@@ -1,37 +1,160 @@
+#scope_module;
 #import "Windows";
-
-// === Private utilities, types, macros, etc. ===
-#scope_file
 #load "c.jai";
 
-u_char  :: c.unsigned_char;
-u_short :: c.unsigned_short;
-u_int   :: c.unsigned_int;
-u_long  :: c.unsigned_long;
-u_int64 :: s64;
-
-BYTE     :: c.unsigned_long;
+#scope_file; 
+BYTE     :: c.unsigned_char;
+WORD     :: c.unsigned_short;
 WCHAR    :: u16;
 WSTR     :: *WCHAR;
 UINT_PTR :: SOCKET;
 
-// === Public API ===
-#scope_export
-using #import "Winsock";
-
-// Defines
-WSAEVENT :: HANDLE;
-GROUP    :: c.unsigned_int;
-ADDR_ANY :: INADDR_ANY;
+#scope_export;
+/// Type-defs
+WSAEVENT          :: HANDLE;
+GROUP             :: c.unsigned_int;
+ADDR_ANY          :: INADDR_ANY;
 WSACOMPLETIONTYPE :: c.unsigned_int;
 
-// SOCK_STREAM    :: 1;
-// SOCK_DGRAM     :: 2;
-// SOCK_RAW       :: 3;
-// SOCK_RDM       :: 4;
-// SOCK_SEQPACKET :: 5;
+LPWSADATA :: *WSADATA;
+
+SOCKADDR    :: sockaddr;
+SOCKADDR_IN :: sockaddr_in;
+LINGER      :: linger;
+FD_SET      :: fd_set;
+HOSTENT     :: hostent;
+SERVENT     :: servent;
+PROTOENT    :: protoent;
+TIMEVAL     :: timeval;
+
+CONDITIONPROC                    :: #type (lpCallerId: *WSABUF, lpCallerData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS, lpCalleeId: *WSABUF, lpCalleeData: *WSABUF, g: *GROUP, dwCallbackData: *DWORD) -> c.int;
+WSAOVERLAPPED_COMPLETION_ROUTINE :: #type (dwError: DWORD, cbTransferred: DWORD, lpOverlapped: *WSAOVERLAPPED, dwFlags: DWORD);
+
+
+/// Defines
+WINSOCK_VERSION : WORD : 2 | (2 << 8);
+
+SOCKET       :: u64;
+SOCKET_ERROR :: -1;
+INVALID_SOCKET : SOCKET : ~0;
+
+FD_SETSIZE :: 64;
+
+IOCPARM_MASK :: 0x7f;
+IOC_VOID     :: 0x20000000;
+IOC_OUT      :: 0x40000000;
+IOC_IN       :: 0x80000000;
+IOC_INOUT    :: IOC_IN | IOC_OUT;
+
+// #runs might not be needed.
+FIONREAD   :: #run _IOR(#char "f", 127, c.unsigned_long);
+FIONBIO    :: #run _IOW(#char "f", 126, c.unsigned_long);
+FIOASYNC   :: #run _IOW(#char "f", 125, c.unsigned_long);
+SIOCSHIWAT :: #run _IOW(#char "s", 0, c.unsigned_long);
+SIOCGHIWAT :: #run _IOR(#char "s", 1, c.unsigned_long);
+SIOCSLOWAT :: #run _IOW(#char "s", 2, c.unsigned_long);
+SIOCGLOWAT :: #run _IOR(#char "s", 3, c.unsigned_long);
+SIOCATMARK :: #run _IOR(#char "s", 7, c.unsigned_long);
+
+IPPROTO_IP   :: 0;
+IPPROTO_ICMP :: 1;
+IPPROTO_IGMP :: 2;
+IPPROTO_GGP  :: 3;
+IPPROTO_TCP  :: 6;
+IPPROTO_PUP  :: 12;
+IPPROTO_UDP  :: 17;
+IPPROTO_IDP  :: 22;
+IPPROTO_ND   :: 77;
+IPPROTO_RAW  :: 255;
+IPPROTO_MAX  :: 256;
+
+IPPORT_ECHO       :: 7;
+IPPORT_DISCARD    :: 9;
+IPPORT_SYSTAT     :: 11;
+IPPORT_DAYTIME    :: 13;
+IPPORT_NETSTAT    :: 15;
+IPPORT_FTP        :: 21;
+IPPORT_TELNET     :: 23;
+IPPORT_SMTP       :: 25;
+IPPORT_TIMESERVER :: 37;
+IPPORT_NAMESERVER :: 42;
+IPPORT_WHOIS      :: 43;
+IPPORT_MTP        :: 57;
+
+IPPORT_TFTP    :: 69;
+IPPORT_RJE     :: 77;
+IPPORT_FINGER  :: 79;
+IPPORT_TTYLINK :: 87;
+IPPORT_SUPDUP  :: 95;
+
+IPPORT_EXECSERVER  :: 512;
+IPPORT_LOGINSERVER :: 513;
+IPPORT_CMDSERVER   :: 514;
+IPPORT_EFSSERVER   :: 520;
+
+IPPORT_BIFFUDP     :: 512;
+IPPORT_WHOSERVER   :: 513;
+IPPORT_ROUTESERVER :: 520;
+
+IPPORT_RESERVED :: 1024;
+
+IMPLINK_IP        :: 155;
+IMPLINK_LOWEXPER  :: 156;
+IMPLINK_HIGHEXPER :: 158;
+
+IN_CLASSA_NET    :: 0xff000000;
+IN_CLASSA_NSHIFT :: 24;
+IN_CLASSA_HOST   :: 0x00ffffff;
+IN_CLASSA_MAX    :: 128;
+IN_CLASSB_NET    :: 0xffff0000;
+IN_CLASSB_NSHIFT :: 16;
+IN_CLASSB_HOST   :: 0x0000ffff;
+IN_CLASSB_MAX    :: 65536;
+IN_CLASSC_NET    :: 0xffffff00;
+IN_CLASSC_NSHIFT :: 8;
+IN_CLASSC_HOST   :: 0x000000ff;
+
+IP_OPTIONS         :: 1;
+IP_MULTICAST_IF    :: 2;
+IP_MULTICAST_TTL   :: 3;
+IP_MULTICAST_LOOP  :: 4;
+IP_ADD_MEMBERSHIP  :: 5;
+IP_DROP_MEMBERSHIP :: 6;
+IP_TTL             :: 7;
+IP_TOS             :: 8;
+IP_DONTFRAGMENT    :: 9;
+
+IP_DEFAULT_MULTICAST_TTL  :: 1;
+IP_DEFAULT_MULTICAST_LOOP :: 1;
+IP_MAX_MEMBERSHIPS        :: 20;
+
+INADDR_ANY       : c.unsigned_long : 0x00000000;
+INADDR_BROADCAST : c.unsigned_long : 0xffffffff;
+INADDR_LOOPBACK          :: 0x7f000001;
+INADDR_NONE              :: 0xffffffff;
+
+WSADESCRIPTION_LEN :: 256;
+WSASYS_STATUS_LEN  :: 128;
+
+SOCK_STREAM    :: 1;
+SOCK_DGRAM     :: 2;
+SOCK_RAW       :: 3;
+SOCK_RDM       :: 4;
+SOCK_SEQPACKET :: 5;
 
 SO_EXCLUSIVEADDRUSE :: ~SO_REUSEADDR;
+
+SO_DEBUG       :: 0x0001;
+SO_ACCEPTCONN  :: 0x0002;
+SO_REUSEADDR   :: 0x0004;
+SO_KEEPALIVE   :: 0x0008;
+SO_DONTROUTE   :: 0x0010;
+SO_BROADCAST   :: 0x0020;
+SO_USELOOPBACK :: 0x0040;
+SO_LINGER      :: 0x0080;
+SO_OOBINLINE   :: 0x0100;
+
+SO_DONTLINGER :: ~SO_LINGER;
 
 SO_GROUP_ID       :: 0x2001;
 SO_GROUP_PRIORITY :: 0x2002;
@@ -39,31 +162,128 @@ SO_MAX_MSG_SIZE   :: 0x2003;
 SO_PROTOCOL_INFOA :: 0x2004;
 SO_PROTOCOL_INFOW :: 0x2005;
 
-FROM_PROTOCOL_INFO :: -1;
+SO_SNDBUF   :: 0x1001;
+SO_RCVBUF   :: 0x1002;
+SO_SNDLOWAT :: 0x1003;
+SO_RCVLOWAT :: 0x1004;
+SO_SNDTIMEO :: 0x1005;
+SO_RCVTIMEO :: 0x1006;
+SO_ERROR    :: 0x1007;
+SO_TYPE     :: 0x1008;
 
-PVD_CONFIG            :: 0x3001;
+SO_CONNDATA    :: 0x7000;
+SO_CONNOPT     :: 0x7001;
+SO_DISCDATA    :: 0x7002;
+SO_DISCOPT     :: 0x7003;
+SO_CONNDATALEN :: 0x7004;
+SO_CONNOPTLEN  :: 0x7005;
+SO_DISCDATALEN :: 0x7006;
+SO_DISCOPTLEN  :: 0x7007;
+
+SO_OPENTYPE :: 0x7008;
+
+SO_SYNCHRONOUS_ALERT    :: 0x10;
+SO_SYNCHRONOUS_NONALERT :: 0x20;
+
+SO_MAXDG                 :: 0x7009;
+SO_MAXPATHDG             :: 0x700A;
+SO_UPDATE_ACCEPT_CONTEXT :: 0x700B;
+SO_CONNECT_TIME          :: 0x700C;
+
+SD_SEND :: 0x01;
+
 SO_CONDITIONAL_ACCEPT :: 0x3002;
 
+TCP_NODELAY   :: 0x0001;
+TCP_BSDURGENT :: 0x7000;
+
+// Address families
+AF_UNSPEC    :: 0;
+AF_UNIX      :: 1;
+AF_INET      :: 2;
+AF_IMPLINK   :: 3;
+AF_PUP       :: 4;
+AF_CHAOS     :: 5;
+AF_IPX       :: 6;
+AF_NS        :: 6;
+AF_ISO       :: 7;
+AF_OSI       :: AF_ISO;
+AF_ECMA      :: 8;
+AF_DATAKIT   :: 9;
+AF_CCITT     :: 10;
+AF_SNA       :: 11;
+AF_DECnet    :: 12;
+AF_DLI       :: 13;
+AF_LAT       :: 14;
+AF_HYLINK    :: 15;
+AF_APPLETALK :: 16;
+AF_NETBIOS   :: 17;
+AF_VOICEVIEW :: 18;
+AF_FIREFOX   :: 19;
+AF_UNKNOWN1  :: 20;
+AF_BAN       :: 21;
+AF_MAX       :: 22;
+
+PF_UNSPEC    :: AF_UNSPEC;
+PF_UNIX      :: AF_UNIX;
+PF_INET      :: AF_INET;
+PF_IMPLINK   :: AF_IMPLINK;
+PF_PUP       :: AF_PUP;
+PF_CHAOS     :: AF_CHAOS;
+PF_NS        :: AF_NS;
+PF_IPX       :: AF_IPX;
+PF_ISO       :: AF_ISO;
+PF_OSI       :: AF_OSI;
+PF_ECMA      :: AF_ECMA;
+PF_DATAKIT   :: AF_DATAKIT;
+PF_CCITT     :: AF_CCITT;
+PF_SNA       :: AF_SNA;
+PF_DECnet    :: AF_DECnet;
+PF_DLI       :: AF_DLI;
+PF_LAT       :: AF_LAT;
+PF_HYLINK    :: AF_HYLINK;
+PF_APPLETALK :: AF_APPLETALK;
+PF_VOICEVIEW :: AF_VOICEVIEW;
+PF_FIREFOX   :: AF_FIREFOX;
+PF_UNKNOWN1  :: AF_UNKNOWN1;
+PF_BAN       :: AF_BAN;
+
+PF_MAX :: AF_MAX;
+
+FROM_PROTOCOL_INFO :: -1;
+
+PVD_CONFIG :: 0x3001;
+
+SOL_SOCKET :: 0xffff;
+SOMAXCONN :: 0x7fffffff;
+
+MSG_OOB            :: 0x1;
+MSG_PEEK           :: 0x2;
+MSG_DONTROUTE      :: 0x4;
+MSG_MAXIOVLEN      :: 16;
+MSG_PARTIAL        :: 0x8000;
 MSG_PUSH_IMMEDIATE :: 0x20;
 MSG_WAITALL        :: 0x8;
 MSG_INTERRUPT      :: 0x10;
 
+MAXGETHOSTSTRUCT :: 1024;
+
 FD_READ_BIT      :: 0;
-// FD_READ          :: 1 << FD_READ_BIT;
+FD_READ          :: 1 << FD_READ_BIT;
 FD_WRITE_BIT     :: 1;
-// FD_WRITE         :: 1 << FD_WRITE_BIT;
+FD_WRITE         :: 1 << FD_WRITE_BIT;
 FD_OOB_BIT       :: 2;
-// FD_OOB           :: 1 << FD_OOB_BIT;
+FD_OOB           :: 1 << FD_OOB_BIT;
 FD_ACCEPT_BIT    :: 3;
-// FD_ACCEPT        :: 1 << FD_ACCEPT_BIT;
+FD_ACCEPT        :: 1 << FD_ACCEPT_BIT;
 FD_CONNECT_BIT   :: 4;
-// FD_CONNECT       :: 1 << FD_CONNECT_BIT;
+FD_CONNECT       :: 1 << FD_CONNECT_BIT;
 FD_CLOSE_BIT     :: 5;
-// FD_CLOSE         :: 1 << FD_CLOSE_BIT;
+FD_CLOSE         :: 1 << FD_CLOSE_BIT;
 FD_QOS_BIT       :: 6;
-// FD_QOS           :: 1 << FD_QOS_BIT;
+FD_QOS           :: 1 << FD_QOS_BIT;
 FD_GROUP_QOS_BIT :: 7;
-// FD_GROUP_QOS     :: 1 << FD_GROUP_QOS_BIT;
+FD_GROUP_QOS     :: 1 << FD_GROUP_QOS_BIT;
 
 FD_ROUTING_INTERFACE_CHANGE_BIT :: 8;
 FD_ROUTING_INTERFACE_CHANGE     :: 1 << FD_ROUTING_INTERFACE_CHANGE_BIT;
@@ -72,8 +292,69 @@ FD_ADDRESS_LIST_CHANGE          :: 1 << FD_ADDRESS_LIST_CHANGE_BIT;
 FD_MAX_EVENTS                   :: 10;
 FD_ALL_EVENTS                   :: (1 << FD_MAX_EVENTS) - 1;
 
-CONDITIONPROC                    :: #type (lpCallerId: *WSABUF, lpCallerData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS, lpCalleeId: *WSABUF, lpCalleeData: *WSABUF, g: *GROUP, dwCallbackData: *DWORD) -> c.int;
-WSAOVERLAPPED_COMPLETION_ROUTINE :: #type (dwError: DWORD, cbTransferred: DWORD, lpOverlapped: *WSAOVERLAPPED, dwFlags: DWORD);
+TF_DISCONNECT   :: 0x01;
+TF_REUSE_SOCKET :: 0x02;
+TF_WRITE_BEHIND :: 0x04;
+
+// Windows Sockets error codes
+WSABASEERR :: 10000;
+
+WSAEINTR  :: WSABASEERR + 4;
+WSAEBADF  :: WSABASEERR + 9;
+WSAEACCES :: WSABASEERR + 13;
+WSAEFAULT :: WSABASEERR + 14;
+WSAEINVAL :: WSABASEERR + 22;
+WSAEMFILE :: WSABASEERR + 24;
+
+// Berkeley error codes
+WSAEWOULDBLOCK     :: WSABASEERR + 35;
+WSAEINPROGRESS     :: WSABASEERR + 36;
+WSAEALREADY        :: WSABASEERR + 37;
+WSAENOTSOCK        :: WSABASEERR + 38;
+WSAEDESTADDRREQ    :: WSABASEERR + 39;
+WSAEMSGSIZE        :: WSABASEERR + 40;
+WSAEPROTOTYPE      :: WSABASEERR + 41;
+WSAENOPROTOOPT     :: WSABASEERR + 42;
+WSAEPROTONOSUPPORT :: WSABASEERR + 43;
+WSAESOCKTNOSUPPORT :: WSABASEERR + 44;
+WSAEOPNOTSUPP      :: WSABASEERR + 45;
+WSAEPFNOSUPPORT    :: WSABASEERR + 46;
+WSAEAFNOSUPPORT    :: WSABASEERR + 47;
+WSAEADDRINUSE      :: WSABASEERR + 48;
+WSAEADDRNOTAVAIL   :: WSABASEERR + 49;
+WSAENETDOWN        :: WSABASEERR + 50;
+WSAENETUNREACH     :: WSABASEERR + 51;
+WSAENETRESET       :: WSABASEERR + 52;
+WSAECONNABORTED    :: WSABASEERR + 53;
+WSAECONNRESET      :: WSABASEERR + 54;
+WSAENOBUFS         :: WSABASEERR + 55;
+WSAEISCONN         :: WSABASEERR + 56;
+WSAENOTCONN        :: WSABASEERR + 57;
+WSAESHUTDOWN       :: WSABASEERR + 58;
+WSAETOOMANYREFS    :: WSABASEERR + 59;
+WSAETIMEDOUT       :: WSABASEERR + 60;
+WSAECONNREFUSED    :: WSABASEERR + 61;
+WSAELOOP           :: WSABASEERR + 62;
+WSAENAMETOOLONG    :: WSABASEERR + 63;
+WSAEHOSTDOWN       :: WSABASEERR + 64;
+WSAEHOSTUNREACH    :: WSABASEERR + 65;
+WSAENOTEMPTY       :: WSABASEERR + 66;
+WSAEPROCLIM        :: WSABASEERR + 67;
+WSAEUSERS          :: WSABASEERR + 68;
+WSAEDQUOT          :: WSABASEERR + 69;
+WSAESTALE          :: WSABASEERR + 70;
+WSAEREMOTE         :: WSABASEERR + 71;
+WSASYSNOTREADY     :: WSABASEERR + 91;
+WSAVERNOTSUPPORTED :: WSABASEERR + 92;
+WSANOTINITIALISED  :: WSABASEERR + 93;
+WSAEDISCON         :: WSABASEERR + 101;
+
+WSAHOST_NOT_FOUND           :: WSABASEERR + 1001;
+WSATRY_AGAIN                :: WSABASEERR + 1002;
+WSANO_RECOVERY              :: WSABASEERR + 1003;
+WSANO_DATA                  :: WSABASEERR + 1004;
+WSA_SECURE_HOST_NOT_FOUND   :: WSABASEERR + 1032;
+WSA_IPSEC_NAME_POLICY_ERROR :: WSABASEERR + 1033;
 
 // Extended error codes
 WSAENOMORE             :: WSABASEERR + 102;
@@ -273,23 +554,29 @@ POLLERR    :: 0x0001;
 POLLHUP    :: 0x0002;
 POLLNVAL   :: 0x0004;
 
+// Compatibility
+h_errno        :: WSAGetLastError;
+HOST_NOT_FOUND :: WSAHOST_NOT_FOUND;
+TRY_AGAIN      :: WSATRY_AGAIN;
+NO_RECOVERY    :: WSANO_RECOVERY;
+NO_DATA        :: WSANO_DATA;
+WSANO_ADDRESS  :: WSANO_DATA;
+NO_ADDRESS     :: WSANO_ADDRESS;
+
 // Enums
-WSAECOMPARATOR :: enum
-{
+WSAECOMPARATOR :: enum u32 {
     COMP_EQUAL :: 0;
     COMP_NOTLESS;
 }
 
-WSAESETSERVICEOP :: enum
-{
+WSAESETSERVICEOP :: enum u32 {
     RNRSERVICE_REGISTER :: 0;
     RNRSERVICE_DEREGISTER;
     RNRSERVICE_DELETE;
 }
 
 // Structs
-WSAOVERLAPPED :: struct
-{
+WSAOVERLAPPED :: struct {
     Internal     : DWORD;
     InternalHigh : DWORD;
     Offset       : DWORD;
@@ -297,20 +584,17 @@ WSAOVERLAPPED :: struct
     hEvent       : WSAEVENT;
 }
 
-WSANETWORKEVENTS :: struct
-{
+WSANETWORKEVENTS :: struct {
     lNetworkEvents : c.long;
     iErrorCode     : [FD_MAX_EVENTS]c.int;
 }
 
-WSAPROTOCOLCHAIN :: struct
-{
+WSAPROTOCOLCHAIN :: struct {
     ChainLen     : c.int;
     ChainEntries : [MAX_PROTOCOL_CHAIN]DWORD;
 }
 
-WSAPROTOCOL_INFO :: struct
-{
+WSAPROTOCOL_INFO :: struct {
     dwServiceFlags1    : DWORD;
     dwServiceFlags2    : DWORD;
     dwServiceFlags3    : DWORD;
@@ -333,20 +617,17 @@ WSAPROTOCOL_INFO :: struct
     szProtocol         : [WSAPROTOCOL_LEN + 1]WCHAR;
 }
 
-AFPROTOCOLS :: struct
-{
+AFPROTOCOLS :: struct {
     iAddressFamily : c.int;
     iProtocol      : c.int;
 }
 
-WSAVERSION :: struct
-{
+WSAVERSION :: struct {
     dwVersion : DWORD;
     ecHow     : WSAECOMPARATOR;
 }
 
-WSAQUERYSET :: struct
-{
+WSAQUERYSET :: struct {
     dwSize                  : DWORD;
     lpszServiceInstanceName : *WSTR;
     lpServiceClassId        : *GUID;
@@ -363,8 +644,7 @@ WSAQUERYSET :: struct
     lpBlob                  : *BLOB;
 }
 
-WSANSCLASSINFO :: struct
-{
+WSANSCLASSINFO :: struct {
     lpszName    : *WSTR;
     dwNameSpace : DWORD;
     dwValueType : DWORD;
@@ -372,16 +652,14 @@ WSANSCLASSINFO :: struct
     lpValue     : *void;
 }
 
-WSASERVICECLASSINFO :: struct
-{
+WSASERVICECLASSINFO :: struct {
     lpServiceClassId     : *GUID;
     lpszServiceClassName : LPSTR;
     dwCount              : DWORD;
     lpClassInfos         : *WSANSCLASSINFO;
 }
 
-WSANAMESPACE_INFO :: struct
-{
+WSANAMESPACE_INFO :: struct {
     NSProviderId   : GUID;
     dwNameSpace    : DWORD;
     fActive        : bool;
@@ -389,8 +667,7 @@ WSANAMESPACE_INFO :: struct
     lpszIdentifier : *WSTR;
 }
 
-WSANAMESPACE_INFOEX :: struct
-{
+WSANAMESPACE_INFOEX :: struct {
     NSProviderId     : GUID;
     dwNameSpace      : DWORD;
     fActive          : bool;
@@ -399,21 +676,18 @@ WSANAMESPACE_INFOEX :: struct
     ProviderSpecific : BLOB;
 }
 
-WSAPOLLFD :: struct
-{
+WSAPOLLFD :: struct {
     fd      : SOCKET;
     events  : c.short;
     revents : c.short;
 }
 
-WSABUF :: struct
-{
+WSABUF :: struct {
     len: c.unsigned_long;
     buf: *c.char;
 }
 
-WSACOMPLETION :: struct
-{
+WSACOMPLETION :: struct {
     Type: WSACOMPLETIONTYPE;
     Parameters: union {
         WindowMessage: struct {
@@ -436,8 +710,7 @@ WSACOMPLETION :: struct
     }
 }
 
-WSAMSG :: struct
-{
+WSAMSG :: struct {
     name          : *SOCKADDR;
     namelen       : c.int;
     lpBuffers     : *WSABUF;
@@ -446,49 +719,126 @@ WSAMSG :: struct
     dwFlags       : c.unsigned_long;
 }
 
-QOS :: struct
-{
-    SendingFlowspec   : FLOWSPEC;
-    ReceivingFlowspec : FLOWSPEC;
-    ProviderSpecific  : WSABUF;
-}
 
-// From qos.h
-SERVICETYPE :: c.unsigned_long;
-FLOWSPEC :: struct
-{
-    TokenRate          : c.unsigned_long;
-    TokenBucketSize    : c.unsigned_long;
-    PeakBandwidth      : c.unsigned_long;
-    Latency            : c.unsigned_long;
-    DelayVariation     : c.unsigned_long;
-    ServiceType        : SERVICETYPE;
-    MaxSduSize         : c.unsigned_long;
-    MinimumPolicedSize : c.unsigned_long;
-}
-
-BLOB :: struct
-{
+BLOB :: struct {
     cbSize    : c.unsigned_long;
     pBlobData : *BYTE;
 }
 
-SOCKET_ADDRESS_LIST :: struct
-{
+SOCKET_ADDRESS_LIST :: struct {
     iAddressCount : c.int;
     Address       : [1]SOCKADDR;
 }
 
-_WS2_32_WINSOCK_SWAP_LONG :: (l: c.unsigned_long) -> c.unsigned_long
-{
+// Structs
+timeval :: struct {
+    tv_sec  : c.long;
+    tv_usec : c.long;
+}
+
+hostent :: struct {
+    h_name      : *c.char;
+    h_aliases   : **c.char;
+    h_addrtype  : c.short;
+    h_length    : c.short;
+    h_addr_list : **c.char;
+}
+
+netent :: struct {
+    n_name     : **c.char;
+    n_aliases  : **c.char;
+    n_addrtype : c.short;
+    n_net      : c.unsigned_long;
+}
+
+servent :: struct {
+    s_name    : *c.char;
+    s_aliases : **c.char;
+    s_port    : c.short;
+    s_proto   : *c.char;
+}
+
+protoent :: struct {
+    p_name    : *c.char;
+    p_aliases : **c.char;
+    p_proto   : c.short;
+}
+
+sockaddr_in :: struct {
+    sin_family : c.short;
+    sin_port   : c.unsigned_short;
+    sin_addr   : in_addr;
+    sin_zero   : [8]c.char;
+}
+
+sockaddr :: struct {
+    sa_family : c.unsigned_short;
+    sa_data   : [14]c.char;
+}
+
+ip_mreq :: struct {
+    imr_multiaddr: in_addr;
+    imr_interface: in_addr;
+}
+
+in_addr :: struct {
+    union {
+        s_un_b: struct {
+            s_b1: c.unsigned_char;
+            s_b2: c.unsigned_char;
+            s_b3: c.unsigned_char;
+            s_b4: c.unsigned_char;
+        };
+        s_un_w: struct  {
+            s_w1: c.unsigned_short;
+            s_w2: c.unsigned_short;
+        };
+        s_addr: c.unsigned_long;
+    };
+}
+
+sockproto :: struct {
+    sp_family   : c.unsigned_short;
+    sp_protocol : c.unsigned_short;
+}
+
+fd_set :: struct {
+    fd_count: c.unsigned_int;
+    fd_array: [FD_SETSIZE]SOCKET;
+}
+
+linger :: struct {
+    l_onoff  : c.unsigned_short;
+    l_linger : c.unsigned_short;
+}
+
+WSADATA :: struct {
+    wVersion       : WORD;
+    wHighVersion   : WORD;
+    szDescription  : [WSADESCRIPTION_LEN + 1]c.char;
+    szSystemStatus : [WSADESCRIPTION_LEN + 1]c.char;
+    iMaxSockets    : c.unsigned_short;
+    iMaxUdpDg      : c.unsigned_short;
+    lpVendorInfo   : *c.char;
+}
+
+TRANSMIT_FILE_BUFFERS :: struct {
+    Head       : *void;
+    HeadLength : DWORD;
+    Tail       : *void;
+    TailLength : DWORD;
+}
+
+
+/// Macro/procedure-conversions
+_WS2_32_WINSOCK_SWAP_LONG :: (l: c.unsigned_long) -> c.unsigned_long #expand {
     return (((l >> 24) & 0x000000FF) |
             ((l >>  8) & 0x0000FF00) |
             ((l <<  8) & 0x00FF0000) |
             ((l << 24) & 0xFF000000) );
 }
 
-_WS2_32_WINSOCK_SWAP_LONGLONG :: (l: c.unsigned_long_long) -> c.unsigned_long_long
-{
+_WS2_32_WINSOCK_SWAP_LONGLONG :: (l: c.unsigned_long_long) -> c.unsigned_long_long #expand {
     return (((l >> 56) & 0x00000000000000FF) |
             ((l >> 40) & 0x000000000000FF00) |
             ((l >> 24) & 0x0000000000FF0000) |
@@ -499,67 +849,154 @@ _WS2_32_WINSOCK_SWAP_LONGLONG :: (l: c.unsigned_long_long) -> c.unsigned_long_lo
             ((l << 56) & 0xFF00000000000000) );
 }
 
-htonll :: inline (Value: c.unsigned_long_long) -> c.unsigned_long_long { return _WS2_32_WINSOCK_SWAP_LONGLONG(Value); }
-ntohll :: inline (Value: c.unsigned_long_long) -> c.unsigned_long_long { return _WS2_32_WINSOCK_SWAP_LONGLONG(Value); }
-// htonf  :: (Value: c.float)              -> c.float              #foreign winsock2;
-// htond  :: (Value: c.double)             -> c.unsigned_long_long #foreign winsock2;
-// nothd  :: (Value: c.unsigned_long_long) -> c.double             #foreign winsock2;
+_IO  :: inline (x: $T, y: T) -> T { return (IOC_VOID | (x << 8) | y); }
+_IOR :: inline (x: $T, y: T, $t: Type) -> T { return (IOC_OUT | ((cast(c.long)size_of(t) & IOCPARM_MASK) << 16 | (x << 8) | y)); }
+_IOW :: inline (x: $T, y: T, $t: Type) -> T { return (IOC_IN  | ((cast(c.long)size_of(t) & IOCPARM_MASK) << 16 | (x << 8) | y)); }
 
-GetHostNameW                 :: (name: LPCWSTR, namelen: c.int)                                                                                                                                                                                                     -> c.int    #foreign winsock2;
-WSAAccept                    :: (s: SOCKET, addr: *sockaddr, addrlen: *c.int, lpfnCondition: CONDITIONPROC, dwCallbackData: *DWORD)                                                                                                                                 -> SOCKET   #foreign winsock2;
-WSACloseEvent                :: (hEvent: WSAEVENT)                                                                                                                                                                                                                  -> bool     #foreign winsock2;
-WSAConnect                   :: (s: SOCKET, name: *sockaddr, namelen: c.int, lpCallerData: *WSABUF, lpCalleeData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS)                                                                                                              -> c.int    #foreign winsock2;
-WSAConnectByNameW            :: (s: SOCKET, nodename: *WSTR, servicename: *WSTR, LocalAddressLength: *DWORD, LocalAddress: *SOCKADDR, RemoteAddressLength: *DWORD, RemoteAddress: *SOCKADDR, timeout: *timeval, Reserved: *OVERLAPPED)                              -> bool     #foreign winsock2;
-WSAConnectByList             :: (s: SOCKET, SocketAddress: *SOCKET_ADDRESS_LIST, LocalAddressLength: *DWORD, LocalAddress: *SOCKADDR, RemoteAddressLength: *DWORD, RemoteAddress: *SOCKADDR, timeout: *timeval, Reserved: *OVERLAPPED)                              -> bool     #foreign winsock2;
-WSACreateEvent               :: ()                                                                                                                                                                                                                                  -> WSAEVENT #foreign winsock2;
-WSADuplicateSocketW          :: (s: SOCKET, dwProcessId: DWORD, lpProtocolInfo: *WSAPROTOCOL_INFO)                                                                                                                                                                  -> c.int    #foreign winsock2;
-WSAEnumNetworkEvents         :: (s: SOCKET, hEventObject: WSAEVENT, lpNetworkEvents: WSANETWORKEVENTS)                                                                                                                                                              -> c.int    #foreign winsock2;
-WSAEnumProtocolsW            :: (lpiProtocols: *c.int, lpProtocolBuffer: *WSAPROTOCOL_INFO, lpdwBufferLength: *DWORD)                                                                                                                                               -> c.int    #foreign winsock2;
-WSAEventSelect               :: (s: SOCKET, hEventObject: WSAEVENT, lNetworkEvents: c.long)                                                                                                                                                                         -> c.int    #foreign winsock2;
-WSAGetOverlappedResult       :: (s: SOCKET, lpOverlapped: *WSAOVERLAPPED, lpcbTransfer: *DWORD, fWait: bool, lpdwFlags: *DWORD)                                                                                                                                     -> bool     #foreign winsock2;
-WSAGetQOSByName              :: (s: SOCKET, lpQOSName: *WSABUF, lpQOS: *QOS)                                                                                                                                                                                        -> bool     #foreign winsock2;
-WSAHtonl                     :: (s: SOCKET, hostlong: u_long, ipnetlong: *u_long)                                                                                                                                                                                   -> c.int    #foreign winsock2;
-WSAHtons                     :: (s: SOCKET, hostshort: u_short, lpnetshort: *u_short)                                                                                                                                                                               -> c.int    #foreign winsock2;
-WSANtohl                     :: (s: SOCKET, netlong: u_long, lphostlong: *u_long)                                                                                                                                                                                   -> c.int    #foreign winsock2;
-WSANtohs                     :: (s: SOCKET, netshort: u_short, lphostshort: *u_short)                                                                                                                                                                               -> c.int    #foreign winsock2;
-WSAIoctl                     :: (s: SOCKET, dwIoControlCode: DWORD, lpvInBuffer: *void, cbInBuffer: DWORD, lpvOutBuffer: *void, cbOutBuffer: DWORD, lpcbBytesReturned: *DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int    #foreign winsock2;
-WSAJoinLeaf                  :: (s: SOCKET, name: *sockaddr, namelen: c.int, lpCallerData: *WSABUF, lpCalleeData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS, dwFlags: DWORD)                                                                                              -> SOCKET   #foreign winsock2;
-WSARecvDisconnect            :: (s: SOCKET, lpInboundDisconnectData: *WSABUF) -> c.int #foreign winsock2;
-WSARecvFrom                  :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesRecvd: *DWORD, lpFlags: *DWORD, lpFrom: *sockaddr, lpFromlen: *c.int, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock2;
-WSAResetEvent                :: (hEvent: WSAEVENT) -> bool #foreign winsock2;
-WSASend                      :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesSent: *DWORD, dwFlags: DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock2;
-WSASendMsg                   :: (Handle: SOCKET, lpMsg: *WSAMSG, dwFlags: DWORD, lpNumberOfBytesSent: *DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletion: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock2;
-WSASendDisconnect            :: (s: SOCKET, lpOutboundDisconnectData: *WSABUF) -> c.int #foreign winsock2;
-WSASendTo                    :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesSent: *DWORD, dwFlags: DWORD, lpTo: *sockaddr, iTolen: c.int, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock2;
-WSASetEvent                  :: (hEvent: WSAEVENT) -> bool #foreign winsock2;
-WSASocketW                   :: (af: c.int, type: c.int, protocol: c.int, lpProtocolInfo: *WSAPROTOCOL_INFO, g: GROUP, dwFlags: DWORD) -> SOCKET #foreign winsock2;
-WSAAddressToStringW          :: (lpsaAddress: *SOCKADDR, dwAddressLength: DWORD, lpProtocolInfo: *WSAPROTOCOL_INFO, lpszAddressString: WSTR, lpdwAddressStringLength: *DWORD) -> c.int #foreign winsock2;
-WSAStringToAddressW          :: (AddressString: WSTR, AddressFamily: c.int, lpProtocolInfo: WSAPROTOCOL_INFO, lpAddress: *SOCKADDR, lpAddressLength: *c.int) -> c.int #foreign winsock2;
-WSALookupServiceBeginW       :: (lpqsRestrictions: WSAQUERYSET, dwControlFlags: DWORD, lphLookup: *HANDLE) -> c.int #foreign winsock2;
-WSALookupServiceNextW        :: (hLookup: HANDLE, dwControlFlags: DWORD, lpdwBufferLength: *DWORD, lpqsResults: *WSAQUERYSET) -> c.int #foreign winsock2;
-WSANSPIoctl                  :: (hLookup: HANDLE, dwControlCode: DWORD, lpvInBuffer: *void, cbInBuffer: DWORD, lpvOutBuffer: *void, cbOutBuffer: DWORD, lpcbBytesReturned: *DWORD, lpCompletion: *WSACOMPLETION) -> c.int #foreign winsock2;
-WSALookupServiceEnd          :: (hLookup: HANDLE) -> c.int #foreign winsock2;
-WSAInstallServiceClassW      :: (lpServiceClassInfo: WSASERVICECLASSINFO) -> c.int #foreign winsock2;
-WSAGetServiceClassInfoW      :: (lpProviderId: *GUID, lpServiceClassId: *GUID, lpdwBufSize: *DWORD, lpServiceClassInfo: WSASERVICECLASSINFO) -> c.int #foreign winsock2;
-WSAEnumNameSpaceProvidersW   :: (lpdwBufferLength: *DWORD, lpnspBuffer: *WSANAMESPACE_INFO) -> c.int #foreign winsock2;
-WSAEnumNameSpaceProvidersExW :: (lpdwBufferLength: *DWORD, lpnspBuffer: *WSANAMESPACE_INFO) -> c.int #foreign winsock2;
-WSASetServiceW               :: (lpqsRegInfo: WSAQUERYSET, essoperation: WSAESETSERVICEOP, dwControlFlags: DWORD) -> c.int #foreign winsock2;
-WSAProviderConfigChange      :: (lpNotificationHandle: *HANDLE, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock2;
-WSAPoll                      :: (fdArray: *WSAPOLLFD, fds: c.unsigned_long, timeout: c.int) -> c.int #foreign winsock2;
+htonll :: inline (Value: c.unsigned_long_long) -> c.unsigned_long_long {
+    return _WS2_32_WINSOCK_SWAP_LONGLONG(Value);
+}
 
-WSASetService               :: WSASetServiceW;
-WSAEnumNameSpaceProvidersEx :: WSAEnumNameSpaceProvidersExW;
-WSAEnumNameSpaceProviders   :: WSAEnumNameSpaceProvidersW;
-WSAGetServiceClassInfo      :: WSAGetServiceClassInfoW;
-WSAInstallServiceClass      :: WSAInstallServiceClassW;
-WSALookupServiceBegin       :: WSALookupServiceBeginW;
-WSASocket                   :: WSASocketW;
-WSAAddressToString          :: WSAAddressToStringW;
-WSAStringToAddress          :: WSAStringToAddressW;
-GetHostName                 :: GetHostNameW;
-WSAConnectByName            :: WSAConnectByNameW;
-WSADuplicateSocket          :: WSADuplicateSocketW;
-WSAEnumProtocols            :: WSAEnumProtocolsW;
+ntohll :: inline (Value: c.unsigned_long_long) -> c.unsigned_long_long {
+    return _WS2_32_WINSOCK_SWAP_LONGLONG(Value);
+}
 
-winsock2 :: #foreign_system_library "ws2_32";
+IN_CLASSA :: (i: int) -> bool #expand { return (cast(c.long)(i) & 0x80000000) == 0;          }
+IN_CLASSB :: (i: int) -> bool #expand { return (cast(c.long)(i) & 0xc0000000) == 0x80000000; }
+IN_CLASSC :: (i: int) -> bool #expand { return (cast(c.long)(i) & 0xe0000000) == 0xc0000000; }
 
+htonf :: inline (Value: c.float) -> c.float {
+    temp := <<(cast(*u32)*Value);
+    return xx _WS2_32_WINSOCK_SWAP_LONG(xx temp);
+}
+
+htond :: inline (Value: c.double) -> c.unsigned_long_long {
+    temp := <<(cast(*u64)*Value);
+    return _WS2_32_WINSOCK_SWAP_LONGLONG(xx temp);
+}
+
+ntohd :: inline (Value: c.unsigned_long_long) -> c.double {
+    temp := _WS2_32_WINSOCK_SWAP_LONGLONG(Value);
+    ret_value: c.double;
+    <<(cast(*u64)*ret_value) = temp;
+    return ret_value;
+}
+
+
+/// Procedures
+WSAStartup                   :: (wVersionRequired: WORD, lpWSAData: *WSADATA) -> c.int                                                                                                                                                                                       #foreign winsock;
+WSACleanup                   :: () -> c.int                                                                                                                                                                                                                                  #foreign winsock;
+WSASetLastError              :: (iError: c.int) -> c.int                                                                                                                                                                                                                     #foreign winsock;
+WSAGetLastError              :: () -> c.int                                                                                                                                                                                                                                  #foreign winsock;
+WSAIsBlocking                :: () -> bool                                                                                                                                                                                                                                   #foreign winsock;
+WSAUnhookBlockingHook        :: () -> c.int                                                                                                                                                                                                                                  #foreign winsock;
+WSACancelBlockingCall        :: () -> c.int                                                                                                                                                                                                                                  #foreign winsock;
+WSAAsyncGetServByName        :: (hWnd: HWND, wMsg: c.unsigned_int, name: *c.char, proto: *c.char, buf: *c.char, buflen: c.int) -> HANDLE                                                                                                                                     #foreign winsock;
+WSAAsyncGetServByPort        :: (hWnd: HWND, wMsg: c.unsigned_int, port: c.int, proto: *c.char, buf: *c.char, buglen: c.int) -> HANDLE                                                                                                                                       #foreign winsock;
+WSAAsyncGetProtoByName       :: (hWnd: HWND, wMsg: c.unsigned_int, name: *c.char, buf: *c.char, buflen: c.int) -> HANDLE                                                                                                                                                     #foreign winsock;
+WSAAsyncGetProtoByNumber     :: (hWnd: HWND, wMsg: c.unsigned_int, number: c.int, buf: *c.char, buflen: c.int) -> HANDLE                                                                                                                                                     #foreign winsock;
+WSAAsyncGetHostByName        :: (hWnd: HWND, wMsg: c.unsigned_int, name: *c.char, buf: *c.char, buflen: c.int) -> HANDLE                                                                                                                                                     #foreign winsock;
+WSAAsyncGetHostByAddr        :: (hWnd: HWND, wMsg: c.unsigned_int, addr: *c.char, len: c.int, type: c.int, buf: *c.char, buflen: c.int) -> HANDLE                                                                                                                            #foreign winsock;
+WSACancelAsyncRequest        :: (hAsyncTaskHandle: HANDLE)                           -> c.int                                                                                                                                                                                #foreign winsock;
+WSAAsyncSelect               :: (s: SOCKET, hWnd: HWND, wMsg: c.unsigned_int, lEvent: c.long) -> c.int                                                                                                                                                                       #foreign winsock;
+GetHostNameW                 :: (name: LPCWSTR, namelen: c.int) -> c.int                                                                                                                                                                                                     #foreign winsock;
+WSAAccept                    :: (s: SOCKET, addr: *sockaddr, addrlen: *c.int, lpfnCondition: CONDITIONPROC, dwCallbackData: *DWORD) -> SOCKET                                                                                                                                #foreign winsock;
+WSACloseEvent                :: (hEvent: WSAEVENT) -> bool                                                                                                                                                                                                                   #foreign winsock;
+WSAConnect                   :: (s: SOCKET, name: *sockaddr, namelen: c.int, lpCallerData: *WSABUF, lpCalleeData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS) -> c.int                                                                                                              #foreign winsock;
+WSAConnectByNameW            :: (s: SOCKET, nodename: *WSTR, servicename: *WSTR, LocalAddressLength: *DWORD, LocalAddress: *SOCKADDR, RemoteAddressLength: *DWORD, RemoteAddress: *SOCKADDR, timeout: *timeval, Reserved: *OVERLAPPED) -> bool                               #foreign winsock;
+WSAConnectByList             :: (s: SOCKET, SocketAddress: *SOCKET_ADDRESS_LIST, LocalAddressLength: *DWORD, LocalAddress: *SOCKADDR, RemoteAddressLength: *DWORD, RemoteAddress: *SOCKADDR, timeout: *timeval, Reserved: *OVERLAPPED) -> bool                               #foreign winsock;
+WSACreateEvent               :: () -> WSAEVENT                                                                                                                                                                                                                               #foreign winsock;
+WSADuplicateSocketW          :: (s: SOCKET, dwProcessId: DWORD, lpProtocolInfo: *WSAPROTOCOL_INFO) -> c.int                                                                                                                                                                  #foreign winsock;
+WSAEnumNetworkEvents         :: (s: SOCKET, hEventObject: WSAEVENT, lpNetworkEvents: WSANETWORKEVENTS) -> c.int                                                                                                                                                              #foreign winsock;
+WSAEnumProtocolsW            :: (lpiProtocols: *c.int, lpProtocolBuffer: *WSAPROTOCOL_INFO, lpdwBufferLength: *DWORD) -> c.int                                                                                                                                               #foreign winsock;
+WSAEventSelect               :: (s: SOCKET, hEventObject: WSAEVENT, lNetworkEvents: c.long) -> c.int                                                                                                                                                                         #foreign winsock;
+WSAGetOverlappedResult       :: (s: SOCKET, lpOverlapped: *WSAOVERLAPPED, lpcbTransfer: *DWORD, fWait: bool, lpdwFlags: *DWORD) -> bool                                                                                                                                      #foreign winsock;
+WSAGetQOSByName              :: (s: SOCKET, lpQOSName: *WSABUF, lpQOS: *QOS) -> bool                                                                                                                                                                                         #foreign winsock;
+WSAHtonl                     :: (s: SOCKET, hostlong: c.unsigned_long, ipnetlong: *c.unsigned_long) -> c.int                                                                                                                                                                 #foreign winsock;
+WSAHtons                     :: (s: SOCKET, hostshort: c.unsigned_short, lpnetshort: *c.unsigned_short) -> c.int                                                                                                                                                             #foreign winsock;
+WSANtohl                     :: (s: SOCKET, netlong: c.unsigned_long, lphostlong: *c.unsigned_long) -> c.int                                                                                                                                                                 #foreign winsock;
+WSANtohs                     :: (s: SOCKET, netshort: c.unsigned_short, lphostshort: *c.unsigned_short) -> c.int                                                                                                                                                             #foreign winsock;
+WSAIoctl                     :: (s: SOCKET, dwIoControlCode: DWORD, lpvInBuffer: *void, cbInBuffer: DWORD, lpvOutBuffer: *void, cbOutBuffer: DWORD, lpcbBytesReturned: *DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int #foreign winsock;
+WSAJoinLeaf                  :: (s: SOCKET, name: *sockaddr, namelen: c.int, lpCallerData: *WSABUF, lpCalleeData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS, dwFlags: DWORD) -> SOCKET                                                                                             #foreign winsock;
+WSARecvDisconnect            :: (s: SOCKET, lpInboundDisconnectData: *WSABUF) -> c.int                                                                                                                                                                                       #foreign winsock;
+WSARecvFrom                  :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesRecvd: *DWORD, lpFlags: *DWORD, lpFrom: *sockaddr, lpFromlen: *c.int, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int    #foreign winsock;
+WSAResetEvent                :: (hEvent: WSAEVENT) -> bool                                                                                                                                                                                                                   #foreign winsock;
+WSASend                      :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesSent: *DWORD, dwFlags: DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int                                             #foreign winsock;
+WSASendMsg                   :: (Handle: SOCKET, lpMsg: *WSAMSG, dwFlags: DWORD, lpNumberOfBytesSent: *DWORD, lpOverlapped: WSAOVERLAPPED, lpCompletion: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int                                                                         #foreign winsock;
+WSASendDisconnect            :: (s: SOCKET, lpOutboundDisconnectData: *WSABUF) -> c.int                                                                                                                                                                                      #foreign winsock;
+WSASendTo                    :: (s: SOCKET, lpBuffers: *WSABUF, dwBufferCount: DWORD, lpNumberOfBytesSent: *DWORD, dwFlags: DWORD, lpTo: *sockaddr, iTolen: c.int, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: *WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int            #foreign winsock;
+WSASetEvent                  :: (hEvent: WSAEVENT) -> bool                                                                                                                                                                                                                   #foreign winsock;
+WSASocketW                   :: (af: c.int, type: c.int, protocol: c.int, lpProtocolInfo: *WSAPROTOCOL_INFO, g: GROUP, dwFlags: DWORD) -> SOCKET                                                                                                                             #foreign winsock;
+WSAAddressToStringW          :: (lpsaAddress: *SOCKADDR, dwAddressLength: DWORD, lpProtocolInfo: *WSAPROTOCOL_INFO, lpszAddressString: WSTR, lpdwAddressStringLength: *DWORD) -> c.int                                                                                       #foreign winsock;
+WSAStringToAddressW          :: (AddressString: WSTR, AddressFamily: c.int, lpProtocolInfo: WSAPROTOCOL_INFO, lpAddress: *SOCKADDR, lpAddressLength: *c.int) -> c.int                                                                                                        #foreign winsock;
+WSALookupServiceBeginW       :: (lpqsRestrictions: WSAQUERYSET, dwControlFlags: DWORD, lphLookup: *HANDLE) -> c.int                                                                                                                                                          #foreign winsock;
+WSALookupServiceNextW        :: (hLookup: HANDLE, dwControlFlags: DWORD, lpdwBufferLength: *DWORD, lpqsResults: *WSAQUERYSET) -> c.int                                                                                                                                       #foreign winsock;
+WSANSPIoctl                  :: (hLookup: HANDLE, dwControlCode: DWORD, lpvInBuffer: *void, cbInBuffer: DWORD, lpvOutBuffer: *void, cbOutBuffer: DWORD, lpcbBytesReturned: *DWORD, lpCompletion: *WSACOMPLETION) -> c.int                                                    #foreign winsock;
+WSALookupServiceEnd          :: (hLookup: HANDLE) -> c.int                                                                                                                                                                                                                   #foreign winsock;
+WSAInstallServiceClassW      :: (lpServiceClassInfo: WSASERVICECLASSINFO) -> c.int                                                                                                                                                                                           #foreign winsock;
+WSAGetServiceClassInfoW      :: (lpProviderId: *GUID, lpServiceClassId: *GUID, lpdwBufSize: *DWORD, lpServiceClassInfo: WSASERVICECLASSINFO) -> c.int                                                                                                                        #foreign winsock;
+WSAEnumNameSpaceProvidersW   :: (lpdwBufferLength: *DWORD, lpnspBuffer: *WSANAMESPACE_INFO) -> c.int                                                                                                                                                                         #foreign winsock;
+WSAEnumNameSpaceProvidersExW :: (lpdwBufferLength: *DWORD, lpnspBuffer: *WSANAMESPACE_INFO) -> c.int                                                                                                                                                                         #foreign winsock;
+WSASetServiceW               :: (lpqsRegInfo: WSAQUERYSET, essoperation: WSAESETSERVICEOP, dwControlFlags: DWORD) -> c.int                                                                                                                                                   #foreign winsock;
+WSAProviderConfigChange      :: (lpNotificationHandle: *HANDLE, lpOverlapped: *WSAOVERLAPPED, lpCompletionRoutine: WSAOVERLAPPED_COMPLETION_ROUTINE) -> c.int                                                                                                                #foreign winsock;
+WSAPoll                      :: (fdArray: *WSAPOLLFD, fds: c.unsigned_long, timeout: c.int) -> c.int                                                                                                                                                                         #foreign winsock;
+WSASetService                :: WSASetServiceW;
+WSAEnumNameSpaceProvidersEx  :: WSAEnumNameSpaceProvidersExW;
+WSAEnumNameSpaceProviders    :: WSAEnumNameSpaceProvidersW;
+WSAGetServiceClassInfo       :: WSAGetServiceClassInfoW;
+WSAInstallServiceClass       :: WSAInstallServiceClassW;
+WSALookupServiceBegin        :: WSALookupServiceBeginW;
+WSASocket                    :: WSASocketW;
+WSAAddressToString           :: WSAAddressToStringW;
+WSAStringToAddress           :: WSAStringToAddressW;
+GetHostName                  :: GetHostNameW;
+WSAConnectByName             :: WSAConnectByNameW;
+WSADuplicateSocket           :: WSADuplicateSocketW;
+WSAEnumProtocols             :: WSAEnumProtocolsW;
+
+socket           :: (af: c.int, type: c.int, protocol: c.int) -> SOCKET                                                #foreign winsock;
+accept           :: (s: SOCKET, addr: *sockaddr, addrlen: *c.int) -> SOCKET                                            #foreign winsock;
+bind             :: (s: SOCKET, addr: *sockaddr, namelen: c.int) -> c.int                                              #foreign winsock;
+closesocket      :: (s: SOCKET) -> c.int                                                                               #foreign winsock;
+ioctlsocket      :: (s: SOCKET, cmd: c.long_long, argp: *c.unsigned_long) -> c.int                                     #foreign winsock;
+getpeername      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                             #foreign winsock;
+getsockname      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                             #foreign winsock;
+getsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                 #foreign winsock;
+listen           :: (s: SOCKET, backlog: c.int) -> c.int                                                               #foreign winsock;
+recv             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, fromlen: *c.int) -> c.int                      #foreign winsock;
+recvfrom         :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, from: *sockaddr, fromlen: *c.int) -> c.int     #foreign winsock;
+select           :: (nfds: c.int, readfds: *fd_set, writefds: *fd_set, exceptfds: *fd_set, timeout: *timeval) -> c.int #foreign winsock;
+send             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int) -> c.int                                       #foreign winsock;
+sendto           :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, to: *sockaddr, tolen: c.int) -> c.int          #foreign winsock;
+setsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                 #foreign winsock;
+shutdown         :: (s: SOCKET, how: c.int) -> c.int                                                                   #foreign winsock;
+connect          :: (s: SOCKET, name: *sockaddr, namelen: c.int) -> c.int                                              #foreign winsock;
+gethostbyaddr    :: (addr: *c.char, len: c.int, type: c.int) -> *hostent                                               #foreign winsock;
+gethostbyname    :: (name: *c.char) -> *hostent                                                                        #foreign winsock;
+gethostname      :: (name: *c.char, namelen: c.int) -> c.int                                                           #foreign winsock;
+getservbyport    :: (port: c.int, proto: *c.char) -> *servent                                                          #foreign winsock;
+getservbyname    :: (name: *c.char, proto: *c.char) -> *servent                                                        #foreign winsock;
+getprotobynumber :: (proto: c.int) -> *protoent                                                                        #foreign winsock;
+getprotobyname   :: (name: *c.char) -> *protoent                                                                       #foreign winsock;
+inet_addr        :: (cp: *c.char) -> c.unsigned_long                                                                   #foreign winsock;
+inet_ntoa        :: (in: in_addr) -> *c.char                                                                           #foreign winsock;
+htonl            :: (hostlong: c.unsigned_long) -> c.unsigned_long                                                     #foreign winsock;
+htons            :: (hostshort: c.unsigned_short) -> c.unsigned_short                                                  #foreign winsock;
+ntohl            :: (netlong: c.unsigned_long) -> c.unsigned_long                                                      #foreign winsock;
+ntohs            :: (netshort: c.unsigned_short) -> c.unsigned_short                                                   #foreign winsock;
+
+
+/// Only defined in Winsock1
+// WSARecvEx            :: (s: SOCKET, buf: *c.char, len: c.int, flags: *c.int) -> c.int                                                                                                                                                                    #foreign winsock;
+// GetAcceptExSockaddrs :: (lpOutputBuffer: *void, dwReceiveDataLength: DWORD, dwLocalAddressLength: DWORD, dwRemoteAddressLength: DWORD, LocalSockaddr: **sockaddr, LocalSockaddrLength: *c.int, RemoteSockaddr: **sockaddr, RemoteSockaddrLength: *c.int) #foreign winsock;
+// AcceptEx             :: (sListenSocket: SOCKET, sAcceptSocket: SOCKET, lpOutputBuffer: *void, dwReceiveDataLength: DWORD, dwLocalAddressLength: DWORD, dwRemoteAddressLength: DWORD, lpdwBytesReceived: *DWORD, lpOverlapped: *OVERLAPPED) -> bool       #foreign winsock;
+// TransmitFile         :: (hSocket: SOCKET, hFile: HANDLE, nNumberOfBytesToWrite: DWORD, nNumberOfBytesPerSend: DWORD, lpOverlapped: *OVERLAPPED, lpTransmitBuffers: *TRANSMIT_FILE_BUFFERS, dwReserved: DWORD) -> bool                                    #foreign winsock;
+
+winsock :: #foreign_system_library "ws2_32";
+
+/// Extensions
+#load "qos.jai";
+// #load "atm.jai";
+// #load "bth.jai";
+// #load "spi.jai";
+// #load "tcpip.jai";
