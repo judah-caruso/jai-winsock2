@@ -20,6 +20,7 @@ LPWSADATA :: *WSADATA;
 
 SOCKADDR    :: sockaddr;
 SOCKADDR_IN :: sockaddr_in;
+ADDRINFOA   :: addrinfo;
 LINGER      :: linger;
 FD_SET      :: fd_set;
 HOSTENT     :: hostent;
@@ -142,8 +143,6 @@ SOCK_RAW       :: 3;
 SOCK_RDM       :: 4;
 SOCK_SEQPACKET :: 5;
 
-SO_EXCLUSIVEADDRUSE :: ~SO_REUSEADDR;
-
 SO_DEBUG       :: 0x0001;
 SO_ACCEPTCONN  :: 0x0002;
 SO_REUSEADDR   :: 0x0004;
@@ -154,7 +153,8 @@ SO_USELOOPBACK :: 0x0040;
 SO_LINGER      :: 0x0080;
 SO_OOBINLINE   :: 0x0100;
 
-SO_DONTLINGER :: ~SO_LINGER;
+SO_DONTLINGER       :: ~SO_LINGER;
+SO_EXCLUSIVEADDRUSE :: ~SO_REUSEADDR;
 
 SO_GROUP_ID       :: 0x2001;
 SO_GROUP_PRIORITY :: 0x2002;
@@ -162,14 +162,15 @@ SO_MAX_MSG_SIZE   :: 0x2003;
 SO_PROTOCOL_INFOA :: 0x2004;
 SO_PROTOCOL_INFOW :: 0x2005;
 
-SO_SNDBUF   :: 0x1001;
-SO_RCVBUF   :: 0x1002;
-SO_SNDLOWAT :: 0x1003;
-SO_RCVLOWAT :: 0x1004;
-SO_SNDTIMEO :: 0x1005;
-SO_RCVTIMEO :: 0x1006;
-SO_ERROR    :: 0x1007;
-SO_TYPE     :: 0x1008;
+SO_SNDBUF    :: 0x1001;
+SO_RCVBUF    :: 0x1002;
+SO_SNDLOWAT  :: 0x1003;
+SO_RCVLOWAT  :: 0x1004;
+SO_SNDTIMEO  :: 0x1005;
+SO_RCVTIMEO  :: 0x1006;
+SO_ERROR     :: 0x1007;
+SO_TYPE      :: 0x1008;
+SO_BSP_STATE :: 0x1009;
 
 SO_CONNDATA    :: 0x7000;
 SO_CONNOPT     :: 0x7001;
@@ -194,35 +195,57 @@ SD_SEND :: 0x01;
 
 SO_CONDITIONAL_ACCEPT :: 0x3002;
 
+SO_PAUSE_ACCEPT        :: 0x3003;
+SO_COMPARTMENT_ID      :: 0x3004;
+SO_RANDOMIZE_PORT      :: 0x3005;
+SO_PORT_SCALABILITY    :: 0x3006;
+SO_REUSE_UNICASTPORT   :: 0x3007;
+SO_REUSE_MULTICASTPORT :: 0x3008;
+SO_MSG_SEGMENT_SIZE    :: 0x300C;  
+
+WSK_SO_BASE :: 0x4000;
+
 TCP_NODELAY   :: 0x0001;
 TCP_BSDURGENT :: 0x7000;
 
 // Address families
-AF_UNSPEC    :: 0;
-AF_UNIX      :: 1;
-AF_INET      :: 2;
-AF_IMPLINK   :: 3;
-AF_PUP       :: 4;
-AF_CHAOS     :: 5;
-AF_IPX       :: 6;
-AF_NS        :: 6;
-AF_ISO       :: 7;
-AF_OSI       :: AF_ISO;
-AF_ECMA      :: 8;
-AF_DATAKIT   :: 9;
-AF_CCITT     :: 10;
-AF_SNA       :: 11;
-AF_DECnet    :: 12;
-AF_DLI       :: 13;
-AF_LAT       :: 14;
-AF_HYLINK    :: 15;
-AF_APPLETALK :: 16;
-AF_NETBIOS   :: 17;
-AF_VOICEVIEW :: 18;
-AF_FIREFOX   :: 19;
-AF_UNKNOWN1  :: 20;
-AF_BAN       :: 21;
-AF_MAX       :: 22;
+AF_UNSPEC     :: 0;
+AF_UNIX       :: 1;
+AF_INET       :: 2;
+AF_IMPLINK    :: 3;
+AF_PUP        :: 4;
+AF_CHAOS      :: 5;
+AF_IPX        :: 6;
+AF_NS         :: AF_IPX;
+AF_ISO        :: 7;
+AF_OSI        :: AF_ISO;
+AF_ECMA       :: 8;
+AF_DATAKIT    :: 9;
+AF_CCITT      :: 10;
+AF_SNA        :: 11;
+AF_DECnet     :: 12;
+AF_DLI        :: 13;
+AF_LAT        :: 14;
+AF_HYLINK     :: 15;
+AF_APPLETALK  :: 16;
+AF_NETBIOS    :: 17;
+AF_VOICEVIEW  :: 18;
+AF_FIREFOX    :: 19;
+AF_UNKNOWN1   :: 20;
+AF_BAN        :: 21;
+AF_ATM        :: 22;
+AF_INET6      :: 23;
+AF_CLUSTER    :: 24;
+AF_12844      :: 25;
+AF_IRDA       :: 26;
+AF_NETDES     :: 28;
+AF_TCNPROCESS :: 29;
+AF_TCNMESSAGE :: 30;
+AF_ICLFXBM    :: 31;
+AF_BTH        :: 32;
+AF_LINK       :: 33;
+AF_HYPERV     :: 34;
+AF_MAX        :: 35;
 
 PF_UNSPEC    :: AF_UNSPEC;
 PF_UNIX      :: AF_UNIX;
@@ -479,11 +502,11 @@ NS_NDS         :: 2;
 NS_PEER_BROWSE :: 3;
 NS_SLP         :: 5;
 NS_DHCP        :: 6;
-NS_TCPIP_LOCAL :: 0;
-NS_TCPIP_HOSTS :: 1;
-NS_DNS         :: 2;
-NS_NETBT       :: 3;
-NS_WINS        :: 4;
+NS_TCPIP_LOCAL :: 10;
+NS_TCPIP_HOSTS :: 11;
+NS_DNS         :: 12;
+NS_NETBT       :: 13;
+NS_WINS        :: 14;
 NS_NLA         :: 15;
 NS_BTH         :: 16;
 NS_NBP         :: 20;
@@ -498,6 +521,14 @@ NS_NIS         :: 41;
 NS_NISPLUS     :: 42;
 NS_WRQ         :: 50;
 NS_NETDES      :: 60;
+
+NI_NOFQDN      :: 0x01;
+NI_NUMERICHOST :: 0x02;
+NI_NAMEREQD    :: 0x04;
+NI_NUMERICSERV :: 0x08;
+NI_DGRAM       :: 0x10;
+NI_MAXHOST     :: 1025;
+NI_MAXSERV     :: 32;
 
 RES_UNUSED_1    :: 0x00000001;
 RES_FLUSH_CACHE :: 0x00000002;
@@ -730,7 +761,6 @@ SOCKET_ADDRESS_LIST :: struct {
     Address       : [1]SOCKADDR;
 }
 
-// Structs
 timeval :: struct {
     tv_sec  : c.long;
     tv_usec : c.long;
@@ -795,6 +825,17 @@ in_addr :: struct {
         };
         s_addr: c.unsigned_long;
     };
+}
+
+addrinfo :: struct {
+    ai_flags     : c.int;
+    ai_family    : c.int;
+    ai_socktype  : c.int;
+    ai_protocol  : c.int;
+    ai_addrlen   : c.size_t;
+    ai_canonname : *c.char;
+    ai_addr      : *sockaddr;
+    ai_next      : *addrinfo;
 }
 
 sockproto :: struct {
@@ -954,36 +995,38 @@ WSAConnectByName             :: WSAConnectByNameW;
 WSADuplicateSocket           :: WSADuplicateSocketW;
 WSAEnumProtocols             :: WSAEnumProtocolsW;
 
-socket           :: (af: c.int, type: c.int, protocol: c.int) -> SOCKET                                                #foreign winsock;
-accept           :: (s: SOCKET, addr: *sockaddr, addrlen: *c.int) -> SOCKET                                            #foreign winsock;
-bind             :: (s: SOCKET, addr: *sockaddr, namelen: c.int) -> c.int                                              #foreign winsock;
-closesocket      :: (s: SOCKET) -> c.int                                                                               #foreign winsock;
-ioctlsocket      :: (s: SOCKET, cmd: c.long_long, argp: *c.unsigned_long) -> c.int                                     #foreign winsock;
-getpeername      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                             #foreign winsock;
-getsockname      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                             #foreign winsock;
-getsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                 #foreign winsock;
-listen           :: (s: SOCKET, backlog: c.int) -> c.int                                                               #foreign winsock;
-recv             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, fromlen: *c.int) -> c.int                      #foreign winsock;
-recvfrom         :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, from: *sockaddr, fromlen: *c.int) -> c.int     #foreign winsock;
-select           :: (nfds: c.int, readfds: *fd_set, writefds: *fd_set, exceptfds: *fd_set, timeout: *timeval) -> c.int #foreign winsock;
-send             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int) -> c.int                                       #foreign winsock;
-sendto           :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, to: *sockaddr, tolen: c.int) -> c.int          #foreign winsock;
-setsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                 #foreign winsock;
-shutdown         :: (s: SOCKET, how: c.int) -> c.int                                                                   #foreign winsock;
-connect          :: (s: SOCKET, name: *sockaddr, namelen: c.int) -> c.int                                              #foreign winsock;
-gethostbyaddr    :: (addr: *c.char, len: c.int, type: c.int) -> *hostent                                               #foreign winsock;
-gethostbyname    :: (name: *c.char) -> *hostent                                                                        #foreign winsock;
-gethostname      :: (name: *c.char, namelen: c.int) -> c.int                                                           #foreign winsock;
-getservbyport    :: (port: c.int, proto: *c.char) -> *servent                                                          #foreign winsock;
-getservbyname    :: (name: *c.char, proto: *c.char) -> *servent                                                        #foreign winsock;
-getprotobynumber :: (proto: c.int) -> *protoent                                                                        #foreign winsock;
-getprotobyname   :: (name: *c.char) -> *protoent                                                                       #foreign winsock;
-inet_addr        :: (cp: *c.char) -> c.unsigned_long                                                                   #foreign winsock;
-inet_ntoa        :: (in: in_addr) -> *c.char                                                                           #foreign winsock;
-htonl            :: (hostlong: c.unsigned_long) -> c.unsigned_long                                                     #foreign winsock;
-htons            :: (hostshort: c.unsigned_short) -> c.unsigned_short                                                  #foreign winsock;
-ntohl            :: (netlong: c.unsigned_long) -> c.unsigned_long                                                      #foreign winsock;
-ntohs            :: (netshort: c.unsigned_short) -> c.unsigned_short                                                   #foreign winsock;
+socket           :: (af: c.int, type: c.int, protocol: c.int) -> SOCKET                                                                                                                  #foreign winsock;
+accept           :: (s: SOCKET, addr: *sockaddr, addrlen: *c.int) -> SOCKET                                                                                                              #foreign winsock;
+bind             :: (s: SOCKET, addr: *sockaddr, namelen: c.int) -> c.int                                                                                                                #foreign winsock;
+closesocket      :: (s: SOCKET) -> c.int                                                                                                                                                 #foreign winsock;
+ioctlsocket      :: (s: SOCKET, cmd: c.long_long, argp: *c.unsigned_long) -> c.int                                                                                                       #foreign winsock;
+getpeername      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                                                                                               #foreign winsock;
+getsockname      :: (s: SOCKET, name: *sockaddr, namelen: *c.int) -> c.int                                                                                                               #foreign winsock;
+getsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                                                                                   #foreign winsock;
+listen           :: (s: SOCKET, backlog: c.int) -> c.int                                                                                                                                 #foreign winsock;
+recv             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, fromlen: *c.int) -> c.int                                                                                        #foreign winsock;
+recvfrom         :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, from: *sockaddr, fromlen: *c.int) -> c.int                                                                       #foreign winsock;
+select           :: (nfds: c.int, readfds: *fd_set, writefds: *fd_set, exceptfds: *fd_set, timeout: *timeval) -> c.int                                                                   #foreign winsock;
+send             :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int) -> c.int                                                                                                         #foreign winsock;
+sendto           :: (s: SOCKET, buf: *c.char, len: c.int, flags: c.int, to: *sockaddr, tolen: c.int) -> c.int                                                                            #foreign winsock;
+setsockopt       :: (s: SOCKET, level: c.int, optname: c.int, optval: *c.char, optlen: c.int) -> c.int                                                                                   #foreign winsock;
+shutdown         :: (s: SOCKET, how: c.int) -> c.int                                                                                                                                     #foreign winsock;
+connect          :: (s: SOCKET, name: *sockaddr, namelen: c.int) -> c.int                                                                                                                #foreign winsock;
+gethostbyaddr    :: (addr: *c.char, len: c.int, type: c.int) -> *hostent                                                                                                                 #foreign winsock;
+gethostbyname    :: (name: *c.char) -> *hostent                                                                                                                                          #foreign winsock;
+gethostname      :: (name: *c.char, namelen: c.int) -> c.int                                                                                                                             #foreign winsock;
+getservbyport    :: (port: c.int, proto: *c.char) -> *servent                                                                                                                            #foreign winsock;
+getservbyname    :: (name: *c.char, proto: *c.char) -> *servent                                                                                                                          #foreign winsock;
+getprotobynumber :: (proto: c.int) -> *protoent                                                                                                                                          #foreign winsock;
+getprotobyname   :: (name: *c.char) -> *protoent                                                                                                                                         #foreign winsock;
+getaddrinfo      :: (pNodeName: *c.char, pServiceName: *c.char, pHints: *addrinfo, ppResult: *addrinfo) -> c.int                                                                         #foreign winsock;
+getnameinfo      :: (pSockaddr: *sockaddr, SockaddrLength: c.int, pNodeBuffer: *c.char, NodeBufferSize: DWORD, pServiceBuffer: *c.char, ServiceBufferSize: DWORD, Flags: c.int) -> c.int #foreign winsock;
+inet_addr        :: (cp: *c.char) -> c.unsigned_long                                                                                                                                     #foreign winsock;
+inet_ntoa        :: (in: in_addr) -> *c.char                                                                                                                                             #foreign winsock;
+htonl            :: (hostlong: c.unsigned_long) -> c.unsigned_long                                                                                                                       #foreign winsock;
+htons            :: (hostshort: c.unsigned_short) -> c.unsigned_short                                                                                                                    #foreign winsock;
+ntohl            :: (netlong: c.unsigned_long) -> c.unsigned_long                                                                                                                        #foreign winsock;
+ntohs            :: (netshort: c.unsigned_short) -> c.unsigned_short                                                                                                                     #foreign winsock;
 
 
 /// Only defined in Winsock1
