@@ -8,6 +8,7 @@ WORD     :: c.unsigned_short;
 WCHAR    :: u16;
 WSTR     :: *WCHAR;
 UINT_PTR :: SOCKET;
+FORMAT_MESSAGE_MAX_WIDTH_MASK ::  0x000000FF; // @Note(Judah): Should be defined in Windows
 
 #scope_export;
 /// Type-defs
@@ -18,15 +19,17 @@ WSACOMPLETIONTYPE :: c.unsigned_int;
 
 LPWSADATA :: *WSADATA;
 
-SOCKADDR    :: sockaddr;
-SOCKADDR_IN :: sockaddr_in;
-ADDRINFOA   :: addrinfo;
-LINGER      :: linger;
-FD_SET      :: fd_set;
-HOSTENT     :: hostent;
-SERVENT     :: servent;
-PROTOENT    :: protoent;
-TIMEVAL     :: timeval;
+SOCKADDR         :: sockaddr;
+SOCKADDR_IN      :: sockaddr_in;
+SOCKADDR_STORAGE :: sockaddr_storage;
+ADDRESS_FAMILY   :: c.unsigned_short;
+ADDRINFO         :: addrinfo;
+LINGER           :: linger;
+FD_SET           :: fd_set;
+HOSTENT          :: hostent;
+SERVENT          :: servent;
+PROTOENT         :: protoent;
+TIMEVAL          :: timeval;
 
 CONDITIONPROC                    :: #type (lpCallerId: *WSABUF, lpCallerData: *WSABUF, lpSQOS: *QOS, lpGQOS: *QOS, lpCalleeId: *WSABUF, lpCalleeData: *WSABUF, g: *GROUP, dwCallbackData: *DWORD) -> c.int;
 WSAOVERLAPPED_COMPLETION_ROUTINE :: #type (dwError: DWORD, cbTransferred: DWORD, lpOverlapped: *WSAOVERLAPPED, dwFlags: DWORD);
@@ -34,6 +37,8 @@ WSAOVERLAPPED_COMPLETION_ROUTINE :: #type (dwError: DWORD, cbTransferred: DWORD,
 
 /// Defines
 WINSOCK_VERSION : WORD : 2 | (2 << 8);
+
+GAI_STRERROR_BUFFER_SIZE :: 1024;
 
 SOCKET       :: u64;
 SOCKET_ERROR :: -1;
@@ -56,6 +61,9 @@ SIOCGHIWAT :: #run _IOR(#char "s", 1, c.unsigned_long);
 SIOCSLOWAT :: #run _IOW(#char "s", 2, c.unsigned_long);
 SIOCGLOWAT :: #run _IOR(#char "s", 3, c.unsigned_long);
 SIOCATMARK :: #run _IOR(#char "s", 7, c.unsigned_long);
+
+INET_ADDRSTRLEN  :: 22;
+INET6_ADDRSTRLEN :: 65;
 
 IPPROTO_IP   :: 0;
 IPPROTO_ICMP :: 1;
@@ -143,6 +151,9 @@ SOCK_RAW       :: 3;
 SOCK_RDM       :: 4;
 SOCK_SEQPACKET :: 5;
 
+SOL_SOCKET :: 0xffff;
+SOMAXCONN  :: 0x7fffffff;
+
 SO_DEBUG       :: 0x0001;
 SO_ACCEPTCONN  :: 0x0002;
 SO_REUSEADDR   :: 0x0004;
@@ -208,6 +219,12 @@ WSK_SO_BASE :: 0x4000;
 TCP_NODELAY   :: 0x0001;
 TCP_BSDURGENT :: 0x7000;
 
+AI_PASSIVE       :: 0x00000001;
+AI_CANONNAME     :: 0x00000002;
+AI_NUMERICHOST   :: 0x00000004;
+AI_NUMERICSERV   :: 0x00000008;
+AI_DNS_ONLY      :: 0x00000010;
+
 // Address families
 AF_UNSPEC     :: 0;
 AF_UNIX       :: 1;
@@ -270,15 +287,11 @@ PF_VOICEVIEW :: AF_VOICEVIEW;
 PF_FIREFOX   :: AF_FIREFOX;
 PF_UNKNOWN1  :: AF_UNKNOWN1;
 PF_BAN       :: AF_BAN;
-
-PF_MAX :: AF_MAX;
+PF_MAX       :: AF_MAX;
 
 FROM_PROTOCOL_INFO :: -1;
 
 PVD_CONFIG :: 0x3001;
-
-SOL_SOCKET :: 0xffff;
-SOMAXCONN :: 0x7fffffff;
 
 MSG_OOB            :: 0x1;
 MSG_PEEK           :: 0x2;
@@ -585,6 +598,11 @@ POLLERR    :: 0x0001;
 POLLHUP    :: 0x0002;
 POLLNVAL   :: 0x0004;
 
+_SS_MAXSIZE   :: 128;
+_SS_ALIGNSIZE :: (size_of(s64));
+_SS_PAD1SIZE  :: (_SS_ALIGNSIZE - size_of(c.unsigned_short));
+_SS_PAD2SIZE  :: (_SS_MAXSIZE - (size_of(c.unsigned_short) + _SS_PAD1SIZE + _SS_ALIGNSIZE));
+
 // Compatibility
 h_errno        :: WSAGetLastError;
 HOST_NOT_FOUND :: WSAHOST_NOT_FOUND;
@@ -806,6 +824,13 @@ sockaddr :: struct {
     sa_data   : [14]c.char;
 }
 
+sockaddr_storage :: struct {
+    ss_family: ADDRESS_FAMILY;
+    __ss_pad1: [_SS_PAD1SIZE]c.char;
+    __ss_align: s64;
+    __ss_pad2: [_SS_PAD2SIZE]c.char;
+}
+
 ip_mreq :: struct {
     imr_multiaddr: in_addr;
     imr_interface: in_addr;
@@ -923,6 +948,23 @@ ntohd :: inline (Value: c.unsigned_long_long) -> c.double {
     return ret_value;
 }
 
+gai_strerror :: inline (ecode: c.int) -> []u8 {
+    buffer: [GAI_STRERROR_BUFFER_SIZE + 1]u8;
+
+    // @Note(Judah): Should probably use FormatMessageW since this version is deprecated.
+    FormatMessageA(
+        FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+        null,
+        xx ecode,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        *buffer.data,
+        GAI_STRERROR_BUFFER_SIZE,
+        null
+    );
+
+    return buffer;
+}
+
 
 /// Procedures
 WSAStartup                   :: (wVersionRequired: WORD, lpWSAData: *WSADATA) -> c.int                                                                                                                                                                                       #foreign winsock;
@@ -1019,10 +1061,13 @@ getservbyport    :: (port: c.int, proto: *c.char) -> *servent                   
 getservbyname    :: (name: *c.char, proto: *c.char) -> *servent                                                                                                                          #foreign winsock;
 getprotobynumber :: (proto: c.int) -> *protoent                                                                                                                                          #foreign winsock;
 getprotobyname   :: (name: *c.char) -> *protoent                                                                                                                                         #foreign winsock;
-getaddrinfo      :: (pNodeName: *c.char, pServiceName: *c.char, pHints: *addrinfo, ppResult: *addrinfo) -> c.int                                                                         #foreign winsock;
 getnameinfo      :: (pSockaddr: *sockaddr, SockaddrLength: c.int, pNodeBuffer: *c.char, NodeBufferSize: DWORD, pServiceBuffer: *c.char, ServiceBufferSize: DWORD, Flags: c.int) -> c.int #foreign winsock;
+getaddrinfo      :: (pNodeName: *c.char, pServiceName: *c.char, pHints: *addrinfo, ppResult: **addrinfo) -> c.int                                                                         #foreign winsock;
+freeaddrinfo     :: (pAddrInfo: *addrinfo)                                                                                                                                               #foreign winsock;
 inet_addr        :: (cp: *c.char) -> c.unsigned_long                                                                                                                                     #foreign winsock;
 inet_ntoa        :: (in: in_addr) -> *c.char                                                                                                                                             #foreign winsock;
+inet_pton        :: (Family: c.int, pszAddrString: *c.char, pAddrBuf: *void) -> c.int                                                                                                    #foreign winsock;
+inet_ntop        :: (Family: c.int, pAddr: *void, pStringBuf: *c.char, StringBufSize: c.size_t) -> *c.char                                                                               #foreign winsock;
 htonl            :: (hostlong: c.unsigned_long) -> c.unsigned_long                                                                                                                       #foreign winsock;
 htons            :: (hostshort: c.unsigned_short) -> c.unsigned_short                                                                                                                    #foreign winsock;
 ntohl            :: (netlong: c.unsigned_long) -> c.unsigned_long                                                                                                                        #foreign winsock;
