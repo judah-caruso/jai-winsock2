@@ -1062,7 +1062,7 @@ getservbyname    :: (name: *c.char, proto: *c.char) -> *servent                 
 getprotobynumber :: (proto: c.int) -> *protoent                                                                                                                                          #foreign winsock;
 getprotobyname   :: (name: *c.char) -> *protoent                                                                                                                                         #foreign winsock;
 getnameinfo      :: (pSockaddr: *sockaddr, SockaddrLength: c.int, pNodeBuffer: *c.char, NodeBufferSize: DWORD, pServiceBuffer: *c.char, ServiceBufferSize: DWORD, Flags: c.int) -> c.int #foreign winsock;
-getaddrinfo      :: (pNodeName: *c.char, pServiceName: *c.char, pHints: *addrinfo, ppResult: **addrinfo) -> c.int                                                                         #foreign winsock;
+getaddrinfo      :: (pNodeName: *c.char, pServiceName: *c.char, pHints: *addrinfo, ppResult: **addrinfo) -> c.int                                                                        #foreign winsock;
 freeaddrinfo     :: (pAddrInfo: *addrinfo)                                                                                                                                               #foreign winsock;
 inet_addr        :: (cp: *c.char) -> c.unsigned_long                                                                                                                                     #foreign winsock;
 inet_ntoa        :: (in: in_addr) -> *c.char                                                                                                                                             #foreign winsock;
@@ -1084,7 +1084,7 @@ winsock :: #foreign_system_library "ws2_32";
 
 /// Extensions
 #load "qos.jai";
+#load "tcpip.jai";
 // #load "atm.jai";
 // #load "bth.jai";
 // #load "spi.jai";
-// #load "tcpip.jai";
